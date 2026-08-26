@@ -62,7 +62,6 @@ docker compose exec app npm run build
 # 11. Pornire servicii dependente de DB (Reverb & MQTT Listener)
 echo -e "${GREEN}[+] Pornire server WebSocket (Reverb) si MQTT Listener...${NC}"
 docker compose up -d reverb mqtt-listener
-docker compose restart reverb mqtt-listener
 
 echo -e "\n${GREEN}=== LaraIoT este gata de utilizare! ===${NC}"
 echo -e "Interfata Web:        ${BLUE}http://localhost:8000/laraiot${NC}"

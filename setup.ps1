@@ -44,7 +44,6 @@ docker compose exec app npm run build
 # 9. Pornire servicii dependente de DB (Reverb si MQTT Listener)
 Write-Host "`n[+] Starting Reverb WebSocket and MQTT Listener..." -ForegroundColor Green
 docker compose up -d reverb mqtt-listener
-docker compose restart reverb mqtt-listener
 
 Write-Host "`n==================================================" -ForegroundColor Cyan
 Write-Host " LaraIoT is ready to use!" -ForegroundColor Green

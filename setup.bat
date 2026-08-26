@@ -44,7 +44,6 @@ docker compose exec app npm run build
 echo.
 echo [+] Starting Reverb WebSocket and MQTT Listener...
 docker compose up -d reverb mqtt-listener
-docker compose restart reverb mqtt-listener
 
 echo.
 echo ==================================================
