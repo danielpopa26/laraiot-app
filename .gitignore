@@ -1,0 +1,66 @@
+# -----------------------------------------------------------------------------
+# Laravel Core & Application Secrets
+# -----------------------------------------------------------------------------
+.env
+.env.backup
+.env.*.local
+.env.testing
+.env.production
+.phpunit.result.cache
+/auth.json
+/storage/pail
+/storage/*.key
+/storage/app/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/testing/*
+/storage/inertia-devtools/*
+/storage/logs/*
+!/storage/app/.gitignore
+!/storage/framework/.gitignore
+!/storage/framework/cache/.gitignore
+!/storage/framework/sessions/.gitignore
+!/storage/framework/views/.gitignore
+!/storage/logs/.gitignore
+
+# -----------------------------------------------------------------------------
+# Dependencies (Always exclude from git)
+# -----------------------------------------------------------------------------
+/vendor
+/node_modules
+
+# -----------------------------------------------------------------------------
+# Frontend Build Artifacts & Caches
+# -----------------------------------------------------------------------------
+/public/build
+/public/hot
+/public/storage
+/public/fonts-manifest.dev.json
+
+# -----------------------------------------------------------------------------
+# Docker & IoT Runtime Logs / Data
+# -----------------------------------------------------------------------------
+*.log
+.docker/mosquitto/data/
+.docker/mosquitto/log/
+docker-compose.override.yml
+
+# -----------------------------------------------------------------------------
+# IDEs, Code Editors & AI Assistants
+# -----------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+/.idea
+/.vscode
+/.cursor/
+/.zed
+/.nova
+/.codex
+/.phpunit.cache
+.phpactor.json
+_ide_helper.php
+_ide_helper_models.php
+.phpstorm.meta.php
+Homestead.json
+Homestead.yaml
