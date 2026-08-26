@@ -13,7 +13,7 @@ if not exist .env (
 )
 
 echo.
-echo [+] Building and starting core Docker containers...
+echo [+] Starting core Docker containers...
 docker compose up -d --build mariadb mqtt-broker app webserver
 
 echo.
@@ -42,7 +42,7 @@ docker compose exec app npm install
 docker compose exec app npm run build
 
 echo.
-echo [+] Starting Reverb WebSocket and MQTT Listener...
+echo [+] Starting WebSocket server (Reverb) and MQTT Listener...
 docker compose up -d reverb mqtt-listener
 
 echo.
