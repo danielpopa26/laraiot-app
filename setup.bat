@@ -14,7 +14,7 @@ if not exist .env (
 
 echo.
 echo [+] Building and starting core Docker containers...
-docker compose up -d --build mariadb mosquitto app nginx
+docker compose up -d --build mariadb mosquitto app webserver
 
 echo.
 echo [+] Installing Composer dependencies...
@@ -51,6 +51,6 @@ echo ==================================================
 echo  LaraIoT is ready to use!
 echo  Web Interface:     http://localhost:8000/laraiot
 echo  MQTT Broker:       mqtt://localhost:1883
-echo  WebSocket Server:  ws://localhost:8080
+echo  WebSocket Server:  ws://localhost:8085
 echo ==================================================
 pause

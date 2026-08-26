@@ -14,7 +14,7 @@ if (-not (Test-Path ".env")) {
 
 # 2. Pornire containere principale (fara workerii dependenti de DB)
 Write-Host "`n[+] Building and starting core Docker containers..." -ForegroundColor Green
-docker compose up -d --build mariadb mosquitto app nginx
+docker compose up -d --build mariadb mosquitto app webserver
 
 # 3. Instalare dependente Composer
 Write-Host "`n[+] Installing Composer dependencies..." -ForegroundColor Green
@@ -50,5 +50,5 @@ Write-Host "`n==================================================" -ForegroundCol
 Write-Host " LaraIoT is ready to use!" -ForegroundColor Green
 Write-Host " Web Interface:     http://localhost:8000/laraiot" -ForegroundColor White
 Write-Host " MQTT Broker:       mqtt://localhost:1883" -ForegroundColor White
-Write-Host " WebSocket Server:  ws://localhost:8080" -ForegroundColor White
+Write-Host " WebSocket Server:  ws://localhost:8085" -ForegroundColor White
 Write-Host "==================================================" -ForegroundColor Cyan
