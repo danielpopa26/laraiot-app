@@ -14,7 +14,12 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
-# 2. Configurare Mosquitto
+# 2. Asigurare structura directoare si permisiuni locale
+echo -e "${GREEN}[+] Pregatire directoare storage si cache...${NC}"
+mkdir -p storage/framework/{sessions,views,cache} bootstrap/cache
+chmod -R 777 storage bootstrap/cache
+
+# 3. Configurare Mosquitto
 mkdir -p .docker/mosquitto/config
 if [ ! -f .docker/mosquitto/config/mosquitto.conf ]; then
     echo -e "${GREEN}[+] Configurare broker Mosquitto...${NC}"
@@ -27,35 +32,40 @@ log_dest file /mosquitto/log/mosquitto.log
 EOF
 fi
 
-# 3. Build containere Docker
+# 4. Build containere Docker
 echo -e "${GREEN}[+] Pornire containere Docker...${NC}"
 docker compose up -d --build
 
-# 4. Instalare pachete PHP prin container
+# 5. Instalare pachete PHP prin container
 echo -e "${GREEN}[+] Instalare dependente Composer...${NC}"
-docker compose exec app composer update --no-interaction --prefer-dist --optimize-autoloader
+docker compose exec app composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# 5. Generare APP_KEY
+# 6. Generare APP_KEY
 echo -e "${GREEN}[+] Generare cheie aplicatie...${NC}"
 docker compose exec app php artisan key:generate --ansi
 
-# 6. Rulare comanda de instalare pachet LaraIoT
+# 7. Asteptare initializare completa MariaDB
+echo -e "${GREEN}[+] Asteptare pornire MariaDB...${NC}"
+sleep 10
+
+# 8. Rulare comanda de instalare pachet LaraIoT
 echo -e "${GREEN}[+] Rulare comanda de instalare LaraIoT...${NC}"
 docker compose exec app php artisan laraiot:install --ui --force
 
-# 7. Rulare migratii
+# 9. Rulare migratii baza de date
 echo -e "${GREEN}[+] Rulare migratii in MariaDB...${NC}"
 docker compose exec app php artisan migrate --force
 
-# 8. Compilare frontend
+# 10. Compilare frontend
 echo -e "${GREEN}[+] Compilare frontend (Vite & Vue) in container...${NC}"
 docker compose exec app npm install
 docker compose exec app npm run build
 
-# 9. Setare permisiuni
-docker compose exec app chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+# 11. Repornire listener MQTT
+echo -e "${GREEN}[+] Repornire serviciu MQTT listener...${NC}"
+docker compose restart mqtt-listener
 
 echo -e "\n${GREEN}=== LaraIoT este gata de utilizare! ===${NC}"
-echo -e "Interfata Web:        ${BLUE}http://localhost:8080/laraiot${NC}"
+echo -e "Interfata Web:        ${BLUE}http://localhost:8000/laraiot${NC}"
 echo -e "Broker MQTT:          ${BLUE}mqtt://localhost:1883${NC}"
 echo -e "WebSocket (Reverb):   ${BLUE}ws://localhost:8085${NC}"

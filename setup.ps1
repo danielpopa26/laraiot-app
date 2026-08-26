@@ -1,11 +1,10 @@
-# LaraIoT Starter Application - Windows Setup Script (PowerShell)
 $ErrorActionPreference = "Stop"
 
 Write-Host "==================================================" -ForegroundColor Cyan
 Write-Host "      LaraIoT Docker Setup for Windows           " -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 
-# 1. Copiere fisier de mediu .env daca nu exista
+# 1. Copiere .env daca nu exista
 if (-not (Test-Path ".env")) {
     Write-Host "[+] Creating .env file from .env.example..." -ForegroundColor Green
     Copy-Item ".env.example" ".env"
@@ -17,27 +16,27 @@ if (-not (Test-Path ".env")) {
 Write-Host "`n[+] Building and starting Docker containers..." -ForegroundColor Green
 docker compose up -d --build
 
-# 3. Asteptare initializare MariaDB (10 secunde)
-Write-Host "`n[+] Waiting for MariaDB to initialize..." -ForegroundColor Green
-Start-Sleep -Seconds 10
+# 3. Instalare dependente Composer (TREBUIE RULAT INAINTE DE ARTISAN)
+Write-Host "`n[+] Installing Composer dependencies..." -ForegroundColor Green
+docker compose exec app composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# 4. Generare cheie aplicatie daca nu exista
+# 4. Generare cheie aplicatie
 Write-Host "`n[+] Generating application key..." -ForegroundColor Green
 docker compose exec app php artisan key:generate --force
 
-# 5. Instalare/Update dependente Composer
-Write-Host "`n[+] Updating Composer dependencies..." -ForegroundColor Green
-docker compose exec app composer update --no-interaction --prefer-dist --optimize-autoloader
+# 5. Asteptare MariaDB
+Write-Host "`n[+] Waiting for MariaDB to initialize..." -ForegroundColor Green
+Start-Sleep -Seconds 10
 
-# 6. Publicare componente si rulare instalare LaraIoT
+# 6. Publicare componente si instalare LaraIoT
 Write-Host "`n[+] Running LaraIoT installation..." -ForegroundColor Green
 docker compose exec app php artisan laraiot:install --ui --force
 
-# 7. Rulare migratii baza de date
+# 7. Rulare migratii
 Write-Host "`n[+] Running database migrations..." -ForegroundColor Green
 docker compose exec app php artisan migrate --force
 
-# 8. Instalare si compilare frontend Vite
+# 8. Compilare frontend Vite
 Write-Host "`n[+] Installing and building frontend assets..." -ForegroundColor Green
 docker compose exec app npm install
 docker compose exec app npm run build
