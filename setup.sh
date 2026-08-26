@@ -28,7 +28,7 @@ fi
 
 # 3. Pornire servicii de baza (fara workerii dependenti de DB)
 echo -e "${GREEN}[+] Pornire containere principale...${NC}"
-docker compose up -d --build mariadb mosquitto app webserver
+docker compose up -d --build mariadb mqtt-broker app webserver
 
 # 4. Configurare permisiuni storage si cache din interiorul containerului
 echo -e "${GREEN}[+] Configurare permisiuni storage si cache...${NC}"

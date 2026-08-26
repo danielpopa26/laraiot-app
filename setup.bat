@@ -14,7 +14,7 @@ if not exist .env (
 
 echo.
 echo [+] Building and starting core Docker containers...
-docker compose up -d --build mariadb mosquitto app webserver
+docker compose up -d --build mariadb mqtt-broker app webserver
 
 echo.
 echo [+] Installing Composer dependencies...

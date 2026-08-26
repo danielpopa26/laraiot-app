@@ -14,7 +14,7 @@ if (-not (Test-Path ".env")) {
 
 # 2. Pornire containere principale (fara workerii dependenti de DB)
 Write-Host "`n[+] Building and starting core Docker containers..." -ForegroundColor Green
-docker compose up -d --build mariadb mosquitto app webserver
+docker compose up -d --build mariadb mqtt-broker app webserver
 
 # 3. Instalare dependente Composer
 Write-Host "`n[+] Installing Composer dependencies..." -ForegroundColor Green
