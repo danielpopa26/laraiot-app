@@ -26,11 +26,11 @@ log_dest file /mosquitto/log/mosquitto.log
 EOF
 fi
 
-# 3. Pornire containere Docker
-echo -e "${GREEN}[+] Pornire containere Docker...${NC}"
-docker compose up -d --build
+# 3. Pornire servicii de baza (fara workerii dependenti de DB)
+echo -e "${GREEN}[+] Pornire containere principale...${NC}"
+docker compose up -d --build mariadb mosquitto app nginx
 
-# 4. Setare permisiuni din interiorul containerului
+# 4. Configurare permisiuni storage si cache din interiorul containerului
 echo -e "${GREEN}[+] Configurare permisiuni storage si cache...${NC}"
 docker compose exec -u root app sh -c "mkdir -p storage/framework/{sessions,views,cache} bootstrap/cache && chmod -R 777 storage bootstrap/cache"
 
@@ -59,11 +59,12 @@ echo -e "${GREEN}[+] Compilare frontend (Vite & Vue)...${NC}"
 docker compose exec app npm install
 docker compose exec app npm run build
 
-# 11. Repornire listener MQTT
-echo -e "${GREEN}[+] Repornire serviciu MQTT listener...${NC}"
-docker compose restart mqtt-listener
+# 11. Pornire / Repornire servicii dependente de DB (Reverb & MQTT Listener)
+echo -e "${GREEN}[+] Pornire server WebSocket (Reverb) si MQTT Listener...${NC}"
+docker compose up -d reverb mqtt-listener
+docker compose restart reverb mqtt-listener
 
 echo -e "\n${GREEN}=== LaraIoT este gata de utilizare! ===${NC}"
 echo -e "Interfata Web:        ${BLUE}http://localhost:8000/laraiot${NC}"
 echo -e "Broker MQTT:          ${BLUE}mqtt://localhost:1883${NC}"
-echo -e "WebSocket (Reverb):   ${BLUE}ws://localhost:8085${NC}"
+echo -e "WebSocket (Reverb):   ${BLUE}ws://localhost:8080${NC}"

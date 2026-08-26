@@ -12,11 +12,11 @@ if (-not (Test-Path ".env")) {
     Write-Host "[i] .env file already exists. Skipping copy." -ForegroundColor Yellow
 }
 
-# 2. Pornire containere Docker
-Write-Host "`n[+] Building and starting Docker containers..." -ForegroundColor Green
-docker compose up -d --build
+# 2. Pornire containere principale (fara workerii dependenti de DB)
+Write-Host "`n[+] Building and starting core Docker containers..." -ForegroundColor Green
+docker compose up -d --build mariadb mosquitto app nginx
 
-# 3. Instalare dependente Composer (TREBUIE RULAT INAINTE DE ARTISAN)
+# 3. Instalare dependente Composer
 Write-Host "`n[+] Installing Composer dependencies..." -ForegroundColor Green
 docker compose exec app composer install --no-interaction --prefer-dist --optimize-autoloader
 
@@ -41,13 +41,14 @@ Write-Host "`n[+] Installing and building frontend assets..." -ForegroundColor G
 docker compose exec app npm install
 docker compose exec app npm run build
 
-# 9. Repornire listener MQTT
-Write-Host "`n[+] Restarting MQTT Listener worker..." -ForegroundColor Green
-docker compose restart mqtt-listener
+# 9. Pornire servicii dependente de DB (Reverb si MQTT Listener)
+Write-Host "`n[+] Starting Reverb WebSocket and MQTT Listener..." -ForegroundColor Green
+docker compose up -d reverb mqtt-listener
+docker compose restart reverb mqtt-listener
 
 Write-Host "`n==================================================" -ForegroundColor Cyan
 Write-Host " LaraIoT is ready to use!" -ForegroundColor Green
 Write-Host " Web Interface:     http://localhost:8000/laraiot" -ForegroundColor White
 Write-Host " MQTT Broker:       mqtt://localhost:1883" -ForegroundColor White
-Write-Host " WebSocket Server:  ws://localhost:8085" -ForegroundColor White
+Write-Host " WebSocket Server:  ws://localhost:8080" -ForegroundColor White
 Write-Host "==================================================" -ForegroundColor Cyan
