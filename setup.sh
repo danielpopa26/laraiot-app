@@ -3,7 +3,6 @@ set -e
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo -e "${BLUE}=== LaraIoT Environment Setup ===${NC}"
@@ -14,12 +13,7 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
-# 2. Asigurare structura directoare si permisiuni locale
-echo -e "${GREEN}[+] Pregatire directoare storage si cache...${NC}"
-mkdir -p storage/framework/{sessions,views,cache} bootstrap/cache
-chmod -R 777 storage bootstrap/cache
-
-# 3. Configurare Mosquitto
+# 2. Configurare Mosquitto daca lipseste
 mkdir -p .docker/mosquitto/config
 if [ ! -f .docker/mosquitto/config/mosquitto.conf ]; then
     echo -e "${GREEN}[+] Configurare broker Mosquitto...${NC}"
@@ -32,15 +26,19 @@ log_dest file /mosquitto/log/mosquitto.log
 EOF
 fi
 
-# 4. Build containere Docker
+# 3. Pornire containere Docker
 echo -e "${GREEN}[+] Pornire containere Docker...${NC}"
 docker compose up -d --build
 
-# 5. Instalare pachete PHP prin container
+# 4. Setare permisiuni din interiorul containerului
+echo -e "${GREEN}[+] Configurare permisiuni storage si cache...${NC}"
+docker compose exec -u root app sh -c "mkdir -p storage/framework/{sessions,views,cache} bootstrap/cache && chmod -R 777 storage bootstrap/cache"
+
+# 5. Instalare dependente Composer
 echo -e "${GREEN}[+] Instalare dependente Composer...${NC}"
 docker compose exec app composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# 6. Generare APP_KEY
+# 6. Generare cheie aplicatie
 echo -e "${GREEN}[+] Generare cheie aplicatie...${NC}"
 docker compose exec app php artisan key:generate --ansi
 
@@ -48,7 +46,7 @@ docker compose exec app php artisan key:generate --ansi
 echo -e "${GREEN}[+] Asteptare pornire MariaDB...${NC}"
 sleep 10
 
-# 8. Rulare comanda de instalare pachet LaraIoT
+# 8. Rulare comanda de instalare LaraIoT
 echo -e "${GREEN}[+] Rulare comanda de instalare LaraIoT...${NC}"
 docker compose exec app php artisan laraiot:install --ui --force
 
@@ -57,7 +55,7 @@ echo -e "${GREEN}[+] Rulare migratii in MariaDB...${NC}"
 docker compose exec app php artisan migrate --force
 
 # 10. Compilare frontend
-echo -e "${GREEN}[+] Compilare frontend (Vite & Vue) in container...${NC}"
+echo -e "${GREEN}[+] Compilare frontend (Vite & Vue)...${NC}"
 docker compose exec app npm install
 docker compose exec app npm run build
 
