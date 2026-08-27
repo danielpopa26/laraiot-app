@@ -2,18 +2,20 @@
 setlocal enabledelayedexpansion
 
 echo ==================================================
-echo       LaraIoT Docker Setup for Windows (CMD)
+echo        LaraIoT Environment Modular Setup (CMD)
 echo ==================================================
 
+set DEFAULT_HOST=localhost
+set /p CHOSEN_HOST="Enter host/IP for LAN & IoT access [%DEFAULT_HOST%]: "
+if "%CHOSEN_HOST%"=="" set CHOSEN_HOST=%DEFAULT_HOST%
+
 if not exist .env (
-    echo [+] Creating .env file from .env.example...
+    echo [+] Creating .env from .env.example...
     copy .env.example .env >nul
-) else (
-    echo [i] .env file already exists. Skipping copy.
 )
 
 echo.
-echo [+] Starting core Docker containers...
+echo [+] Starting core containers...
 docker compose up -d --build mariadb mqtt-broker app webserver
 
 echo.
@@ -25,7 +27,7 @@ echo [+] Generating application key...
 docker compose exec app php artisan key:generate --force
 
 echo.
-echo [+] Waiting for MariaDB to initialize...
+echo [+] Waiting for database initialization...
 timeout /t 10 /nobreak >nul
 
 echo.
@@ -42,14 +44,15 @@ docker compose exec app npm install
 docker compose exec app npm run build
 
 echo.
-echo [+] Starting WebSocket server (Reverb) and MQTT Listener...
+echo [+] Starting Reverb and MQTT Listener...
 docker compose up -d reverb mqtt-listener
 
 echo.
 echo ==================================================
 echo  LaraIoT is ready to use!
-echo  Web Interface:     http://localhost:8000/laraiot
-echo  MQTT Broker:       mqtt://localhost:1883
-echo  WebSocket Server:  ws://localhost:8085
+echo  Local Web UI:         http://localhost:8000/laraiot
+echo  LAN Web UI:           http://%CHOSEN_HOST%:8000/laraiot
+echo  MQTT Broker for IoT:  mqtt://%CHOSEN_HOST%:1883
+echo  WebSocket Server:     ws://%CHOSEN_HOST%:8085
 echo ==================================================
 pause
