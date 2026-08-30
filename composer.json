@@ -5,15 +5,10 @@
     "description": "The skeleton application for the Laravel framework.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/danielpopa26/laraiot.git"
-        }
-    ],
+
     "require": {
         "php": "^8.3",
-        "danpopa/laraiot": "dev-dev",
+        "danpopa/laraiot": "^1.0.1",
         "inertiajs/inertia-laravel": "^3.0",
         "laravel/framework": "^13.17",
         "laravel/reverb": "^1.11",

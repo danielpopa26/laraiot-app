@@ -18,4 +18,7 @@ RUN apk add --no-cache \
 # Instalare Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Configuratie globala Git pentru a evita eroarea "dubious ownership" in /var/www
+RUN git config --global --add safe.directory /var/www
+
 WORKDIR /var/www
