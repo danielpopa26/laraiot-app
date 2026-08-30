@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "35f2ad4952ec57fa9f525864d35c9abd",
+    "content-hash": "574218ccfe2b56704104917301298800",
     "packages": [
         {
             "name": "brick/math",
@@ -266,16 +266,16 @@
         },
         {
             "name": "danpopa/laraiot",
-            "version": "dev-dev",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/danielpopa26/laraiot.git",
-                "reference": "772c05c8b89b1ac83d4226923b092f908bd0617e"
+                "reference": "283daa1a38c163007e04316e63ba2711c4c4ae85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danielpopa26/laraiot/zipball/772c05c8b89b1ac83d4226923b092f908bd0617e",
-                "reference": "772c05c8b89b1ac83d4226923b092f908bd0617e",
+                "url": "https://api.github.com/repos/danielpopa26/laraiot/zipball/283daa1a38c163007e04316e63ba2711c4c4ae85",
+                "reference": "283daa1a38c163007e04316e63ba2711c4c4ae85",
                 "shasum": ""
             },
             "require": {
@@ -313,56 +313,7 @@
                     "Danpopa\\LaraIoT\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Danpopa\\LaraIoT\\Tests\\": "tests/",
-                    "Workbench\\App\\": "workbench/app/",
-                    "Workbench\\Database\\Factories\\": "workbench/database/factories/",
-                    "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
-                }
-            },
-            "scripts": {
-                "post-autoload-dump": [
-                    "@clear",
-                    "@prepare"
-                ],
-                "prepare": [
-                    "@php vendor/bin/testbench package:discover --ansi"
-                ],
-                "build": [
-                    "@php vendor/bin/testbench workbench:build --ansi"
-                ],
-                "serve": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "@build",
-                    "@php vendor/bin/testbench serve --ansi"
-                ],
-                "lint": [
-                    "vendor/bin/pint --parallel"
-                ],
-                "lint:check": [
-                    "vendor/bin/pint --parallel --test"
-                ],
-                "analyse": [
-                    "vendor/bin/phpstan analyse"
-                ],
-                "test:types": [
-                    "vendor/bin/pest --type-coverage --min=100"
-                ],
-                "test:unit": [
-                    "vendor/bin/pest --parallel --exclude-group=install",
-                    "vendor/bin/pest --group=install"
-                ],
-                "test": [
-                    "@analyse",
-                    "@lint:check",
-                    "@test:types",
-                    "@test:unit"
-                ],
-                "clear": [
-                    "@php vendor/bin/testbench package:purge-skeleton --ansi"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -383,10 +334,10 @@
                 "websocket"
             ],
             "support": {
-                "source": "https://github.com/danielpopa26/laraiot/tree/dev",
-                "issues": "https://github.com/danielpopa26/laraiot/issues"
+                "issues": "https://github.com/danielpopa26/laraiot/issues",
+                "source": "https://github.com/danielpopa26/laraiot/tree/v1.0.1"
             },
-            "time": "2026-08-26T12:03:45+00:00"
+            "time": "2026-08-29T21:27:32+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -9637,14 +9588,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "danpopa/laraiot": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.3"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
