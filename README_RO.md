@@ -1,116 +1,186 @@
 <p align="center">
-    <img src="docs/assets/laraiot-logo.png" alt="Logo LaraIoT" width="180">
+  <img src="docs/assets/laraiot-logo.png" alt="Logo LaraIoT" width="180">
 </p>
 
-<h1 align="center">LaraIoT App (Aplicația Model Demonstrativă)</h1>
+<h1 align="center">LaraIoT App</h1>
 
 <p align="center">
-    O aplicatie Laravel demonstrativa și extensibila pentru monitorizarea și controlul echipamentelor IoT.
+  Aplicație Laravel demonstrativă pentru monitorizarea și controlul echipamentelor IoT.
 </p>
 
-## Prezentare generală
+---
 
-LaraIoT-App este aplicația model (template/reference application) creată special pentru a oferi un mediu gata de utilizare (out-of-the-box) celor care doresc să testeze capabilitățile pachetului danpopa/laraiot. 
+## 1. Prezentare generală
 
-Proiectul integrează întregul ecosistem necesar funcționării unei soluții IoT moderne:Broker MQTT (Eclipse Mosquitto) pentru recepția și transmiterea asincronă a pachetelor de telemetrie de la senzori/echipamente. Bază de date relațională (MariaDB) pentru persistența echipamentelor, topicurilor și istoricului stărilor.  Server WebSocket (Laravel Reverb) pentru propagarea evenimentelor în timp real către browser.  Proces de fundal (MQTT Listener Daemon) dedicat ingestiei continui a fluxurilor MQTT.  Interfață Single-Page Application (SPA) bazată pe Vue.js 3, Inertia.js și Tailwind CSS.  Aplicația este 100% containerizată prin Docker Compose, eliminând dependențele de sistemul de operare gazdă și garantând reproductibilitatea experimentală necesară în cercetarea academică.  
+`laraiot-app` este aplicația model și implementarea de referință pentru pachetul [`danpopa/laraiot`](https://packagist.org/packages/danpopa/laraiot). Proiectul oferă un mediu Docker reproductibil în care poate fi demonstrată integrarea dintre Laravel, MQTT, baza de date relațională și comunicarea în timp real prin Polling și WebSockets.
 
-## Scopul și contextul academic
+Aplicația este destinată cercetării, activităților didactice, prototipării și demonstrațiilor controlate. Ea nu reprezintă o platformă IoT profesională pregătită pentru utilizare în producție.
 
-ServiciuImagine / MediuPort InternPort Gazdă (Host)Rol în EcosistemappPHP 8.3-FPM (Alpine)  app:9000-Execuția Laravel, logica pachetului LaraIoT, API-uri  webserverNginx Alpinewebserver:80  8000  Gateway HTTP, servire fișiere statice frontend  mariadbMariaDB 11.2  mariadb:3306  3307  Stocarea echipamentelor fizice/logice și log-urilor  mqtt-brokerEclipse Mosquitto  mqtt-broker:1883  1883  Brokerul MQTT de mesaje pentru echipamentele fizice  reverbPHP CLI (Laravel Reverb)  reverb:8080  8085  Transmisie WebSocket de mare viteză către interfață  mqtt-listenerPHP CLI (laraiot:mqtt-listen)  --Demon de fundal pentru ascultarea topicurilor MQTT  
+## 2. Obiectivele proiectului
 
-## Arhitectura containerizată Docker
+Aplicația are următoarele obiective:
 
-Toate serviciile necesare sunt izolate în containere dedicate:
+1. demonstrarea utilizării framework-ului Laravel pentru aplicații web IoT;
+2. integrarea comunicării MQTT pentru recepția telemetriei și transmiterea comenzilor;
+3. compararea a două mecanisme de actualizare a datelor: Polling și WebSockets;
+4. furnizarea unui mediu reproductibil pentru teste și experimente;
+5. susținerea evaluărilor privind latența, traficul și consumul de resurse.
 
-<p align="center">
-    <img src="docs/assets/table-docker-arhitecture.png" alt="Logo LaraIoT" width="180">
-</p>
+## 3. Arhitectura Docker Compose
 
-## Metode de instalare și configurare
+Aplicația este alcătuită din următoarele servicii:
 
-Aplicația suportă două moduri de punere în funcțiune: automatizată (recomandată) și manuală pas cu pas.
+| Serviciu | Imagine / mediu | Port intern | Port gazdă | Rol |
+|---|---|---:|---:|---|
+| `app` | PHP 8.3-FPM (Alpine) | `9000` | — | Execută Laravel, pachetul LaraIoT și API-urile |
+| `webserver` | Nginx (Alpine) | `80` | `8000` | Reverse proxy HTTP și servirea resurselor |
+| `mariadb` | MariaDB 11.2 | `3306` | `3307` | Persistă dispozitivele, topicurile și jurnalele |
+| `mqtt-broker` | Eclipse Mosquitto | `1883` | `1883` | Broker MQTT pentru telemetrie și comenzi |
+| `reverb` | PHP CLI / Laravel Reverb | `8080` | `8085` | Transmite evenimente WebSocket către interfață |
+| `mqtt-listener` | PHP CLI | — | — | Ascultă și procesează mesajele MQTT |
 
-**Varianta A**: Instalare automatizată prin Scripturi dedicate (Cross-Platform)
+Serviciile comunică prin rețeaua internă creată de Docker Compose. Porturile expuse pe gazdă pot fi adaptate în fișierele de configurare și în `.env`.
 
-Pentru a asigura o instalare fără bătăi de cap indiferent de platformă, proiectul include 3 scripturi de inițializare:
+## 4. Cerințe
 
-- setup.sh – pentru medii Linux / macOS / WSL2 (Bash)  
-- setup.ps1 – pentru medii Windows (PowerShell)
-- setup.cmd / setup.bat – pentru terminalul clasic Windows Command Prompt.
+- Docker Engine și Docker Compose v2;
+- Git;
+- acces la porturile utilizate de aplicație;
+- un broker MQTT local sau accesibil din rețea, dacă nu se utilizează serviciul inclus;
+- Linux, macOS, Windows sau WSL2 pentru scripturile furnizate.
 
-Pași de instalare (exemplu Linux/Bash):
+Mediul PHP, Node.js, MariaDB, Mosquitto și Reverb este creat în containere. Versiunile utilizate de imaginea Docker trebuie considerate sursa de adevăr pentru reproducerea experimentelor.
+
+## 5. Instalare automatizată
+
+Clonarea repository-ului:
 
 ```bash
 git clone https://github.com/danielpopa26/laraiot-app.git
 cd laraiot-app
+```
+
+Scripturile disponibile sunt:
+
+- `setup.sh` pentru Linux, macOS și WSL2;
+- `setup.ps1` pentru PowerShell;
+- `setup.cmd` / `setup.bat` pentru Command Prompt.
+
+Exemplu pentru Linux, macOS sau WSL2:
+
+```bash
 chmod +x setup.sh
 ./setup.sh
 ```
 
-Ce execută automat scriptul:
+În funcție de configurație, scriptul poate:
 
-1. Diagnosticarea interfeței de rețea (detectare IP LAN, Hostname, MAC) pentru configurarea statică a adreselor IoT.  
-2. Configurarea interactivă și sincronizarea automată a variabilelor în .env (Mod local Docker sau conectare la servere externe de DB/MQTT/Reverb).  
-3. Configurarea permisiunilor locale și crearea directoarelor storage și bootstrap/cache.  
-4. Pornirea containerelor de bază, instalarea dependențelor prin composer install și generarea APP_KEY.  
-5. Inițializarea resurselor pachetului prin php artisan laraiot:install --ui --force și rularea migrărilor bazei de date.  
-6. Compilarea frontend-ului (Vite / Vue 3) prin npm install și npm run build.  
-7. Pornirea demonilor auxiliari (reverb și mqtt-listener).
+- pregăti fișierul `.env`;
+- crea directoarele necesare și ajusta permisiunile;
+- construi și porni containerele;
+- instala dependențele PHP și frontend;
+- genera `APP_KEY`;
+- instala resursele LaraIoT și rula migrările;
+- construi resursele Vue.js/Vite;
+- porni Reverb și listener-ul MQTT.
 
-**Varianta B**: Instalare și configurare manuală (Fără Script)
-
-Dacă dorești control complet asupra procesului de configurare:
-
-1. Copierea fișierului de mediu:
+## 6. Instalare manuală
 
 ```bash
 cp .env.example .env
-```
-
-2. Pornirea serviciilor de bază:
-
-```bash
 docker compose up -d --build mariadb app webserver mqtt-broker
-```
-
-3. Instalarea dependențelor PHP și generarea cheii:
-
-```bash
-docker compose exec app composer install
-docker compose exec app php artisan key:generate
-```
-
-4. Instalarea resurselor LaraIoT și rularea migrărilor:
-
-```bash
+docker compose exec -u root app sh -c "mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache && chmod -R 777 storage bootstrap/cache"
+docker compose exec app composer install --no-interaction --prefer-dist --optimize-autoloader
+docker compose exec app php artisan key:generate --ansi
 docker compose exec app php artisan laraiot:install --ui --force
-docker compose exec app php artisan migrate
-```
-
-5. Compilarea interfeței grafice:
-
-```bash
+docker compose exec app php artisan migrate --force
 docker compose exec app npm install
 docker compose exec app npm run build
-```
-
-6. Pornirea serviciilor de fundal:
-
-```bash
 docker compose up -d reverb mqtt-listener
 ```
 
+## 7. Accesarea aplicației
 
-## Autori & Afilieri Academice
+După pornirea serviciilor, interfața este disponibilă la:
 
-- **Daniel POPA** – Student Doctorand, Departamentul de Electronică și Telecomunicații, Facultatea de Inginerie Electrică și Tehnologia Informației, Universitatea din Oradea, România.  
+```text
+http://localhost:8000/laraiot
+```
 
-- Prof. univ. dr. ing. habil. **Ioan BUCIU** – Conducător de doctorat, Departamentul de Electronică și Telecomunicații, Facultatea de Inginerie Electrică și Tehnologia Informației, Universitatea din Oradea, România.  
+Dacă portul gazdă a fost modificat, utilizați portul configurat în `.env` sau în fișierul Compose.
 
-## Citare & Identificator Academic
+## 8. Verificarea fluxului MQTT
 
-Pentru citarea LaraIoT, utilizați metadatele din fișierul [`CITATION.cff`](CITATION.cff). DOI-ul va fi adăugat după arhivarea primei versiuni în Zenodo.
+Pentru simularea unui dispozitiv care publică telemetrie JSON:
 
-## Licență
+```bash
+docker compose exec mqtt-broker mosquitto_pub \
+  -t "devices/sensor-01/telemetry" \
+  -m '{"temperature":24.5,"humidity":62.0,"status":"active"}'
+```
 
-LaraIoT este distribuit sub licența [MIT](LICENSE).
+Mesajul este recepționat de `mqtt-listener`, procesat de LaraIoT și, dacă topicul este configurat și validat, persistat în baza de date. În modul WebSocket, interfața poate primi actualizarea fără reîncărcarea paginii.
+
+## 9. Polling și WebSockets
+
+Aplicația permite selectarea modului de actualizare a stărilor:
+
+- **Polling** — interfața solicită periodic datele de la server;
+- **WebSockets** — serverul transmite evenimentele către clienții conectați prin Laravel Reverb.
+
+Scopul proiectului este compararea celor două abordări în condiții controlate. Pentru modul WebSocket, canalul demonstrativ este public și nu trebuie expus într-un mediu de producție fără implementarea autentificării, autorizării și a altor măsuri de securitate.
+
+## 10. Reproducibilitate și cercetare
+
+Pentru experimente reproductibile, se recomandă consemnarea următoarelor elemente:
+
+- commit-ul sau tag-ul utilizat;
+- versiunile imaginilor Docker;
+- configurația hardware a gazdei;
+- numărul de dispozitive și topicuri;
+- intervalul de Polling;
+- starea serviciilor Reverb și MQTT;
+- valorile măsurate și metoda de colectare.
+
+Modificările experimentale trebuie păstrate separat de versiunea demonstrativă stabilă.
+
+## 11. Securitate și domeniu de utilizare
+
+Această aplicație este destinată cercetării, educației, prototipării și demonstrațiilor controlate. Configurația implicită nu trebuie utilizată pentru controlul echipamentelor într-un mediu public sau neîncrezător.
+
+Înaintea unei eventuale utilizări în producție, dezvoltatorul trebuie să implementeze și să verifice autentificarea, autorizarea, canale WebSocket protejate, TLS, securizarea brokerului MQTT, gestionarea secretelor, limitarea cererilor, jurnalizarea și monitorizarea.
+
+## 12. Depanare de bază
+
+Verificarea stării serviciilor:
+
+```bash
+docker compose ps
+docker compose logs --tail=100 app
+docker compose logs --tail=100 mqtt-listener
+docker compose logs --tail=100 reverb
+```
+
+Verificarea rutelor și a migrărilor:
+
+```bash
+docker compose exec app php artisan route:list
+docker compose exec app php artisan migrate:status
+```
+
+## 13. Legătura cu pachetul LaraIoT
+
+Codul reutilizabil și documentația pachetului sunt disponibile în repository-ul [`laraiot`](https://github.com/danielpopa26/laraiot). Această aplicație este un consumator demonstrativ al unei versiuni publicate a pachetului.
+
+## 14. Autori
+
+- **Daniel POPA**, student doctorand, Department of Electronics and Telecommunications, Faculty of Electrical Engineering and Information Technology, University of Oradea, Oradea, Romania.
+- **Ioan BUCIU**, Professor, PhD, Habilitated Doctor, Department of Electronics and Telecommunications, Faculty of Electrical Engineering and Information Technology, University of Oradea, Oradea, Romania.
+
+## 15. Citare
+
+Pentru citarea software-ului LaraIoT, consultați fișierul `CITATION.cff` din repository-ul pachetului. DOI-ul proiectului este disponibil prin Zenodo după arhivarea release-ului.
+
+## 16. Licență
+
+Aplicația este distribuită sub licența [MIT](LICENSE).

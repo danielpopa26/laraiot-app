@@ -1,171 +1,126 @@
 <p align="center">
-    <img src="docs/assets/laraiot-logo.png" alt="LaraIoT logo" width="180"> 
+  <img src="docs/assets/laraiot-logo.png" alt="LaraIoT logo" width="180">
 </p>
 
 <h1 align="center">LaraIoT App</h1>
 
-<p align="center">
-    A demonstrative and extensible Laravel model for monitoring and controlling IoT equipment.
-</p>
+<p align="center">Demonstration Laravel application for monitoring and controlling IoT equipment.</p>
 
-<p align="center">
-    <a href="https://packagist.org/packages/danpopa/laraiot"><img src="https://img.shields.io/packagist/v/danpopa/laraiot.svg?style=flat-square" alt="Latest Version"></a>
-    <a href="https://packagist.org/packages/danpopa/laraiot"><img src="https://img.shields.io/packagist/php-v/danpopa/laraiot.svg?style=flat-square" alt="PHP Version"></a>
-    <a href="https://github.com/danpopa26/laraiot/actions"><img src="https://img.shields.io/github/actions/workflow/status/danpopa26/laraiot/tests.yml?branch=main&label=Tests&style=flat-square" alt="Tests"></a>
-    <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="MIT License"></a>
-</p>
+## 1. Overview
 
-## Overview
+`laraiot-app` is the reference application for the [`danpopa/laraiot`](https://packagist.org/packages/danpopa/laraiot) package. It provides a reproducible Docker environment for demonstrating the integration of Laravel, MQTT, a relational database, and real-time communication through Polling and WebSockets.
 
-LaraIoT provides a demonstrative and extensible model for developing Laravel web applications intended to monitor and control IoT equipment. The package integrates MQTT communication, device and topic management, state persistence, command publishing, and two alternative mechanisms for updating data: Polling and WebSockets.
+The application is intended for research, education, prototyping, and controlled demonstrations. It is not a professional, production-ready IoT platform.
 
-The package focuses on two real-time communication approachesâ€”Polling and WebSocketsâ€”and allows users to compare their behaviour in the same application context. This makes LaraIoT suitable both as a practical development resource and as a research and teaching project.
+## 2. Project objectives
 
-LaraIoT can be installed in two ways:
+1. Demonstrate the use of Laravel for IoT web applications.
+2. Integrate MQTT communication for telemetry and commands.
+3. Compare Polling and WebSocket state updates.
+4. Provide a reproducible environment for tests and experiments.
+5. Support evaluations of latency, network traffic, and resource consumption.
 
-- **Frontend-agnostic installation**, which provides the Laravel backend, MQTT integration, device management and communication services without imposing a frontend technology;
-- **Optional Vue.js and Inertia installation**, which adds the ready-to-use LaraIoT web interface when the host application uses a compatible Vue.js, Inertia and Vite stack.
+## 3. Docker Compose architecture
 
-## Project scope and status
+| Service | Image / environment | Internal port | Host port | Role |
+|---|---|---:|---:|---|
+| `app` | PHP 8.3-FPM (Alpine) | `9000` | â€” | Runs Laravel, LaraIoT and APIs |
+| `webserver` | Nginx (Alpine) | `80` | `8000` | HTTP reverse proxy and static assets |
+| `mariadb` | MariaDB 11.2 | `3306` | `3307` | Persists devices, topics and logs |
+| `mqtt-broker` | Eclipse Mosquitto | `1883` | `1883` | MQTT broker |
+| `reverb` | PHP CLI / Laravel Reverb | `8080` | `8085` | WebSocket broadcasting |
+| `mqtt-listener` | PHP CLI | â€” | â€” | Processes MQTT messages |
 
-LaraIoT is a research and demonstration package. It was created to show how Laravel can be used to build IoT monitoring and control applications and to support a comparison between Polling and WebSocket communication.
+The services communicate through the internal Docker Compose network. Host ports can be changed in the Compose files and `.env`.
 
-The package is not intended to be a professional, production-ready IoT platform. Authentication, authorization, enterprise security hardening and other production requirements are outside the current scope.
+## 4. Requirements
 
-The default demonstration WebSocket channel is public. It must not be exposed to an untrusted production environment without an appropriate security layer.
+- Docker Engine and Docker Compose v2;
+- Git;
+- access to the ports used by the application;
+- Linux, macOS, Windows, or WSL2 for the supplied scripts.
 
-## Why use LaraIoT?
+The Docker images provide PHP, Node.js, MariaDB, Mosquitto, and Reverb. Their versions should be treated as the reference environment for reproducing experiments.
 
-LaraIoT provides a ready-made Laravel foundation for research, education and controlled prototypes. Developers can model devices, configure MQTT topics, persist states, publish commands, and compare Polling with WebSockets without implementing these layers from scratch.
-
-The backend can be installed independently of the optional Vue.js and Inertia interface, or the interface can be added to a compatible host application.
-
-## Features
-
-- physical and logical device management;
-- MQTT state and command topics;
-- RAW and JSON payload support;
-- topic validation and command testing;
-- Polling mode for state updates and comparison;
-- optional WebSocket mode with Laravel Reverb for real-time updates;
-- public `laraiot.devices` broadcast channel for demonstration deployments;
-- optional Vue/Inertia administration interface;
-- activity logging and application settings.
-
-## Requirements
-
-- PHP 8.3 or later;
-- Laravel 11, 12, or 13;
-- Composer;
-- an MQTT broker for live device communication;
-- Node.js 22 or later only when the optional Vue/Inertia interface is installed;
-- Laravel Reverb only when WebSocket mode is enabled.
-
-## Installation
+## 5. Automated installation
 
 ```bash
-composer require danpopa/laraiot
-php artisan laraiot:install
-php artisan migrate
+git clone https://github.com/danielpopa26/laraiot-app.git
+cd laraiot-app
+chmod +x setup.sh
+./setup.sh
 ```
 
-This is the frontend-agnostic installation. It publishes the LaraIoT configuration and migrations and does not impose a frontend technology. Laravel Reverb is optional; the application remains available in Polling mode when WebSocket support is not configured.
+Available scripts are `setup.sh` for Linux/macOS/WSL2, `setup.ps1` for PowerShell, and `setup.cmd` / `setup.bat` for Command Prompt. Depending on the selected configuration, the scripts prepare `.env`, build and start containers, install dependencies, generate `APP_KEY`, install LaraIoT, run migrations, build the frontend, and start Reverb and the MQTT listener.
 
-## Optional Vue.js and Inertia interface
+## 6. Manual installation
 
 ```bash
-php artisan laraiot:install --ui
-npm install
-npm run build
+cp .env.example .env
+docker compose up -d --build mariadb app webserver mqtt-broker
+docker compose exec -u root app sh -c "mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache && chmod -R 777 storage bootstrap/cache"
+docker compose exec app composer install --no-interaction --prefer-dist --optimize-autoloader
+docker compose exec app php artisan key:generate --ansi
+docker compose exec app php artisan laraiot:install --ui --force
+docker compose exec app php artisan migrate --force
+docker compose exec app npm install
+docker compose exec app npm run build
+docker compose up -d reverb mqtt-listener
 ```
 
-Use `--force` together with `--ui` to overwrite existing LaraIoT interface files:
+## 7. Accessing and testing the application
+
+The interface is available at:
+
+```text
+http://localhost:8000/laraiot
+```
+
+To simulate a device publishing JSON telemetry:
 
 ```bash
-php artisan laraiot:install --ui --force
+docker compose exec mqtt-broker mosquitto_pub \
+  -t "devices/sensor-01/telemetry" \
+  -m '{"temperature":24.5,"humidity":62.0,"status":"active"}'
 ```
 
-This installation adds the LaraIoT web interface to a host application that already uses a compatible Vue.js, Inertia and Vite frontend stack.
+The message is received by `mqtt-listener`, processed by LaraIoT and persisted when the topic is configured and validated. In WebSocket mode, the interface can receive the update without reloading the page.
 
-## MQTT listener and commands
+## 8. Polling and WebSockets
 
-Start the MQTT listener:
+- **Polling** periodically requests state data from the server.
+- **WebSockets** sends state events to connected clients through Laravel Reverb.
+
+The application is designed to compare these approaches under controlled conditions. The demonstration WebSocket channel is public and must not be exposed in production without authentication, authorization, and additional security controls.
+
+## 9. Reproducibility
+
+For reproducible experiments, record the commit or tag, Docker image versions, host hardware, number of devices and topics, Polling interval, service status, measured values, and collection method. Keep experimental changes separate from the stable demonstration version.
+
+## 10. Security and intended use
+
+This application is intended for research, education, prototyping, and controlled demonstrations. Before production use, developers must implement and verify authentication, authorization, protected WebSocket channels, TLS, MQTT broker security, secret management, rate limiting, logging, and monitoring.
+
+## 11. Troubleshooting
 
 ```bash
-php artisan laraiot:mqtt-listen
+docker compose ps
+docker compose logs --tail=100 app
+docker compose logs --tail=100 mqtt-listener
+docker compose logs --tail=100 reverb
+docker compose exec app php artisan route:list
+docker compose exec app php artisan migrate:status
 ```
 
-Publish a configured command topic:
+## 12. Relation to the LaraIoT package
 
-```bash
-php artisan laraiot:publish {topicId} {commandKey}
-```
+The reusable package is available in the [`laraiot`](https://github.com/danielpopa26/laraiot) repository. This application is a demonstration consumer of a published package version.
 
-An optional MQTT client identifier can be supplied:
-
-```bash
-php artisan laraiot:publish {topicId} {commandKey} --client-id=client-name
-```
-
-## Polling and WebSockets
-
-LaraIoT can operate in Polling mode without Laravel Reverb. When WebSocket mode is selected and Reverb is available, the frontend subscribes to the public `laraiot.devices` channel and consumes `logical-device.state-updated` events. No application user authentication is required for this demonstration channel.
-
-If the WebSocket server is unavailable, the interface falls back to Polling.
-
-## Security notice
-
-LaraIoT should be used for research, education, prototyping and controlled demonstrations. Before using it in production, developers must independently implement and verify authentication, authorization, protected WebSocket channels, encrypted transport, MQTT broker security, secret management, rate limiting and monitoring.
-
-## Configuration
-
-Publish the configuration file when customization is required:
-
-```bash
-php artisan vendor:publish --tag="laraiot-config"
-```
-
-The published configuration is available at `config/laraiot.php`.
-
-## Testing
-
-Install development dependencies and run the package test suite:
-
-```bash
-composer install
-vendor/bin/pest
-```
-
-Additional quality checks are available through Composer scripts:
-
-```bash
-composer lint:check
-composer analyse
-composer test
-```
-
-## Demonstration application
-
-The containerized demonstration application is available in the [`laraiot-app`](https://github.com/danielpopa26/laraiot-app) repository.
-
-## Documentation
-
-- [Romanian documentation](DOCUMENTATIE_LARAIOT_RO.md)
-- [Changelog](CHANGELOG.md), when available
-
-## Authors
+## 13. Authors
 
 - **Daniel POPA**, PhD student, Department of Electronics and Telecommunications, Faculty of Electrical Engineering and Information Technology, University of Oradea, Oradea, Romania.
 - **Ioan BUCIU**, Professor, PhD, Habilitated Doctor, Department of Electronics and Telecommunications, Faculty of Electrical Engineering and Information Technology, University of Oradea, Oradea, Romania.
 
-## Citation
+## 14. Citation and license
 
-Please use the metadata in [`CITATION.cff`](CITATION.cff) when citing LaraIoT. A DOI will be added after the first GitHub release is archived by Zenodo.
-
-## License
-
-LaraIoT is open-sourced software licensed under the [MIT license](LICENSE).
-
-## Security
-
-Please do not report security vulnerabilities through public issues. Use the private security reporting mechanism provided by GitHub or contact the maintainers.
+For citation, consult `CITATION.cff` in the package repository. The application is distributed under the [MIT license](LICENSE).
