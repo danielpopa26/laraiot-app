@@ -1,19 +1,26 @@
 cff-version: 1.2.0
 message: "If you use LaraIoT-App in your research, thesis, or benchmarking projects, please cite it as follows."
 type: software
-title: "LaraIoT-App: Containerized Reference and Benchmarking Platform for the LaraIoT Framework"
+title: "LaraIoT-App: A Containerized Demonstration Application Using the LaraIoT Laravel Package"
 abstract: >-
-  LaraIoT-App is the containerized reference and template application designed
-  to demonstrate, evaluate, and benchmark the LaraIoT (danpopa/laraiot) framework.
-  It provides an out-of-the-box, fully reproducible Docker-based testbed integrating
-  MQTT communication, relational state persistence with MariaDB, live event
-  broadcasting via Laravel Reverb WebSockets, background ingestion workers, and an
-  Inertia.js/Vue 3 single-page dashboard. The platform enables comparative
-  latency and performance analysis between Polling and WebSocket paradigms in
-  controlled IoT environments.
+  LaraIoT-App is a containerized demonstration application illustrating
+  how the LaraIoT Laravel package (danpopa/laraiot) can be used to build
+  web applications for monitoring and controlling IoT devices.
+  It provides a Docker-based environment integrating MQTT communication,
+  device state persistence in MariaDB, background MQTT message processing,
+  and a web interface built with Vue.js and Inertia.
+  The application supports two alternative mechanisms for updating data
+  in the web interface: periodic HTTP polling and WebSockets through
+  Laravel Reverb. It provides a practical starting point for developers
+  and a reference implementation for exploring and comparing these
+  mechanisms in controlled IoT environments.
+  LaraIoT-App is intended for research, education, and prototyping.
+  Security hardening is outside its scope, and additional safeguards
+  are required before deployment in production environments.
 repository-code: "https://github.com/danielpopa26/laraiot-app"
 url: "https://github.com/danielpopa26/laraiot-app"
 license: MIT
+doi: "10.5281/zenodo.22904852"
 keywords:
   - Laravel
   - Internet of Things
