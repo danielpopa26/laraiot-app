@@ -15,6 +15,9 @@ RUN apk add --no-cache \
     $PHPIZE_DEPS \
     && docker-php-ext-install pdo_mysql pcntl sockets bcmath opcache zip
 
+# Configurare Git safe directory globala pentru containere
+RUN git config --system --add safe.directory '*'
+
 # Instalare Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

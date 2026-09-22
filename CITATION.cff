@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use LaraIoT-App in your research, thesis, or benchmarking projects, please cite it as follows."
+type: software
+title: "LaraIoT-App: Containerized Reference and Benchmarking Platform for the LaraIoT Framework"
+abstract: >-
+  LaraIoT-App is the containerized reference and template application designed
+  to demonstrate, evaluate, and benchmark the LaraIoT (danpopa/laraiot) framework.
+  It provides an out-of-the-box, fully reproducible Docker-based testbed integrating
+  MQTT communication, relational state persistence with MariaDB, live event
+  broadcasting via Laravel Reverb WebSockets, background ingestion workers, and an
+  Inertia.js/Vue 3 single-page dashboard. The platform enables comparative
+  latency and performance analysis between Polling and WebSocket paradigms in
+  controlled IoT environments.
+repository-code: "https://github.com/danielpopa26/laraiot-app"
+url: "https://github.com/danielpopa26/laraiot-app"
+license: MIT
+keywords:
+  - Laravel
+  - Internet of Things
+  - IoT
+  - MQTT
+  - Docker
+  - WebSockets
+  - Laravel Reverb
+  - Inertia.js
+  - Vue.js
+  - research testbed
+  - benchmarking platform
+  - demonstration software
+authors:
+  - family-names: "POPA"
+    given-names: "Daniel"
+    orcid: "https://orcid.org/0009-0009-1442-0528"
+    affiliation: >-
+      Department of Electronics and Telecommunications, Faculty of Electrical
+      Engineering and Information Technology, University of Oradea, Oradea,
+      Romania
+  - family-names: "BUCIU"
+    given-names: "Ioan"
+    orcid: "https://orcid.org/0000-0002-2220-9476"
+    affiliation: >-
+      Department of Electronics and Telecommunications, Faculty of Electrical
+      Engineering and Information Technology, University of Oradea, Oradea,
+      Romania

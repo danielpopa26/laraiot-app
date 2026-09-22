@@ -1,58 +1,126 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="docs/assets/laraiot-logo.png" alt="LaraIoT logo" width="180">
 </p>
 
-## About Laravel
+<h1 align="center">LaraIoT App</h1>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">Demonstration Laravel application for monitoring and controlling IoT equipment.</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 1. Overview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+`laraiot-app` is the reference application for the [`danpopa/laraiot`](https://packagist.org/packages/danpopa/laraiot) package. It provides a reproducible Docker environment for demonstrating the integration of Laravel, MQTT, a relational database, and real-time communication through Polling and WebSockets.
 
-## Learning Laravel
+The application is intended for research, education, prototyping, and controlled demonstrations. It is not a professional, production-ready IoT platform.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 2. Project objectives
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. Demonstrate the use of Laravel for IoT web applications.
+2. Integrate MQTT communication for telemetry and commands.
+3. Compare Polling and WebSocket state updates.
+4. Provide a reproducible environment for tests and experiments.
+5. Support evaluations of latency, network traffic, and resource consumption.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 3. Docker Compose architecture
 
-## Agentic Development
+| Service | Image / environment | Internal port | Host port | Role |
+|---|---|---:|---:|---|
+| `app` | PHP 8.3-FPM (Alpine) | `9000` | â€” | Runs Laravel, LaraIoT and APIs |
+| `webserver` | Nginx (Alpine) | `80` | `8000` | HTTP reverse proxy and static assets |
+| `mariadb` | MariaDB 11.2 | `3306` | `3307` | Persists devices, topics and logs |
+| `mqtt-broker` | Eclipse Mosquitto | `1883` | `1883` | MQTT broker |
+| `reverb` | PHP CLI / Laravel Reverb | `8080` | `8085` | WebSocket broadcasting |
+| `mqtt-listener` | PHP CLI | â€” | â€” | Processes MQTT messages |
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+The services communicate through the internal Docker Compose network. Host ports can be changed in the Compose files and `.env`.
+
+## 4. Requirements
+
+- Docker Engine and Docker Compose v2;
+- Git;
+- access to the ports used by the application;
+- Linux, macOS, Windows, or WSL2 for the supplied scripts.
+
+The Docker images provide PHP, Node.js, MariaDB, Mosquitto, and Reverb. Their versions should be treated as the reference environment for reproducing experiments.
+
+## 5. Automated installation
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/danielpopa26/laraiot-app.git
+cd laraiot-app
+chmod +x setup.sh
+./setup.sh
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Available scripts are `setup.sh` for Linux/macOS/WSL2, `setup.ps1` for PowerShell, and `setup.cmd` / `setup.bat` for Command Prompt. Depending on the selected configuration, the scripts prepare `.env`, build and start containers, install dependencies, generate `APP_KEY`, install LaraIoT, run migrations, build the frontend, and start Reverb and the MQTT listener.
 
-## Contributing
+## 6. Manual installation
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+cp .env.example .env
+docker compose up -d --build mariadb app webserver mqtt-broker
+docker compose exec -u root app sh -c "mkdir -p storage/framework/{sessions,views,cache} storage/logs bootstrap/cache && chmod -R 777 storage bootstrap/cache"
+docker compose exec app composer install --no-interaction --prefer-dist --optimize-autoloader
+docker compose exec app php artisan key:generate --ansi
+docker compose exec app php artisan laraiot:install --ui --force
+docker compose exec app php artisan migrate --force
+docker compose exec app npm install
+docker compose exec app npm run build
+docker compose up -d reverb mqtt-listener
+```
 
-## Code of Conduct
+## 7. Accessing and testing the application
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+The interface is available at:
 
-## Security Vulnerabilities
+```text
+http://localhost:8000/laraiot
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+To simulate a device publishing JSON telemetry:
 
-## License
+```bash
+docker compose exec mqtt-broker mosquitto_pub \
+  -t "devices/sensor-01/telemetry" \
+  -m '{"temperature":24.5,"humidity":62.0,"status":"active"}'
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The message is received by `mqtt-listener`, processed by LaraIoT and persisted when the topic is configured and validated. In WebSocket mode, the interface can receive the update without reloading the page.
+
+## 8. Polling and WebSockets
+
+- **Polling** periodically requests state data from the server.
+- **WebSockets** sends state events to connected clients through Laravel Reverb.
+
+The application is designed to compare these approaches under controlled conditions. The demonstration WebSocket channel is public and must not be exposed in production without authentication, authorization, and additional security controls.
+
+## 9. Reproducibility
+
+For reproducible experiments, record the commit or tag, Docker image versions, host hardware, number of devices and topics, Polling interval, service status, measured values, and collection method. Keep experimental changes separate from the stable demonstration version.
+
+## 10. Security and intended use
+
+This application is intended for research, education, prototyping, and controlled demonstrations. Before production use, developers must implement and verify authentication, authorization, protected WebSocket channels, TLS, MQTT broker security, secret management, rate limiting, logging, and monitoring.
+
+## 11. Troubleshooting
+
+```bash
+docker compose ps
+docker compose logs --tail=100 app
+docker compose logs --tail=100 mqtt-listener
+docker compose logs --tail=100 reverb
+docker compose exec app php artisan route:list
+docker compose exec app php artisan migrate:status
+```
+
+## 12. Relation to the LaraIoT package
+
+The reusable package is available in the [`laraiot`](https://github.com/danielpopa26/laraiot) repository. This application is a demonstration consumer of a published package version.
+
+## 13. Authors
+
+- **Daniel POPA**, PhD student, Department of Electronics and Telecommunications, Faculty of Electrical Engineering and Information Technology, University of Oradea, Oradea, Romania.
+- **Ioan BUCIU**, Professor, PhD, Habilitated Doctor, Department of Electronics and Telecommunications, Faculty of Electrical Engineering and Information Technology, University of Oradea, Oradea, Romania.
+
+## 14. Citation and license
+
+For citation, consult `CITATION.cff` in the package repository. The application is distributed under the [MIT license](LICENSE).
